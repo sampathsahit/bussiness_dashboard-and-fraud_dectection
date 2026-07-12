@@ -19,22 +19,16 @@ st.markdown("Business Performance Analysis")
 def load_data():
     df = pd.read_csv("C:\python\data.csv", encoding="ISO-8859-1")
 
-    # Remove missing CustomerID
     df = df.dropna(subset=["CustomerID"])
 
-    # Remove cancelled orders
     df = df[~df["InvoiceNo"].astype(str).str.startswith("C")]
 
-    # Remove negative values
     df = df[(df["Quantity"] > 0) & (df["UnitPrice"] > 0)]
 
-    # Convert date
     df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"])
 
-    # Revenue
     df["Revenue"] = df["Quantity"] * df["UnitPrice"]
 
-    # Year & Month
     df["Year"] = df["InvoiceDate"].dt.year
     df["Month"] = df["InvoiceDate"].dt.strftime("%B")
 
@@ -44,9 +38,8 @@ def load_data():
 
 df = load_data()
 
-# -----------------------------
 # Sidebar Filters
-# -----------------------------
+
 st.sidebar.header("Filters")
 
 country = st.sidebar.multiselect(
@@ -99,15 +92,13 @@ c1.metric("💰 Total Revenue", f"${total_revenue:,.2f}")
 c2.metric("🛒 Total Orders", total_orders)
 c3.metric("👥 Customers", total_customers)
 c4.metric("📦 Avg Order Value", f"${avg_order:,.2f}")
-# -----------------------------
+
 # Dashboard Charts
-# -----------------------------
 
 col1, col2 = st.columns(2)
 
-# =============================
 # Revenue Trend
-# =============================
+
 with col1:
 
     monthly = filtered_df.groupby(
@@ -132,9 +123,8 @@ with col1:
 
     st.plotly_chart(fig, use_container_width=True)
 
-# =============================
+
 # Top Countries
-# =============================
 with col2:
 
     country = filtered_df.groupby("Country")["Revenue"].sum().nlargest(10).reset_index()
@@ -157,13 +147,11 @@ with col2:
 
     st.plotly_chart(fig, use_container_width=True)
 
-############################################################
 
 col3, col4 = st.columns(2)
 
-# =============================
+
 # Top Products
-# =============================
 with col3:
 
     products = filtered_df.groupby("Description")["Revenue"].sum().nlargest(10).reset_index()
@@ -188,9 +176,7 @@ with col3:
 
     st.plotly_chart(fig, use_container_width=True)
 
-# =============================
 # Top Customers
-# =============================
 with col4:
 
     segment_count = (
@@ -248,9 +234,9 @@ fig.update_layout(
 )
 
 st.plotly_chart(fig,use_container_width=True)
-# -----------------------------
+
 # Business Recommendations
-# -----------------------------
+
 st.subheader("💡 Business Recommendations")
 
 top_country_name = (
